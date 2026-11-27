@@ -42,8 +42,12 @@ db.collection("chats").onSnapshot(
       if (!recipient) return;
 
       try {
-        const recipientDoc = await db.collection("users").doc(recipient).get();
-        const token = recipientDoc.get("fcmToken");
+        // El token ahora está en un lugar privado de la cuenta del destinatario
+        const tokenDoc = await db
+          .collection("users").doc(recipient)
+          .collection("private").doc("device")
+          .get();
+        const token = tokenDoc.exists ? tokenDoc.get("fcmToken") : null;
         if (!token) return;
 
         const senderDoc = await db.collection("users").doc(lastFrom).get();
